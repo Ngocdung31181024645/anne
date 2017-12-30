@@ -12,3 +12,5 @@ name = "dria"
 path = "src/main.rs"
 
 [dependencies]
+log = "0.4.0"
+env_logger = "0.4.3"
