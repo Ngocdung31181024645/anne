@@ -1,0 +1,6 @@
+[package]
+name = "alexandria"
+version = "0.1.0"
+authors = ["zovt <zovt@posteo.de>"]
+
+[dependencies]
