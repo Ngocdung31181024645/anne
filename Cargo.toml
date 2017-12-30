@@ -3,4 +3,8 @@ name = "alexandria"
 version = "0.1.0"
 authors = ["zovt <zovt@posteo.de>"]
 
+[[bin]]
+name = "dria"
+path = "src/main.rs"
+
 [dependencies]
