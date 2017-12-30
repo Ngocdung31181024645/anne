@@ -4,7 +4,10 @@ extern crate log;
 
 mod library;
 mod filetypes;
+mod book;
 
+
+use book::Book;
 use std::env;
 use std::fs;
 use std::path::Path;
@@ -24,7 +27,6 @@ fn main() {
 	lib_path.push("share");
 	lib_path.push("alexandria");
 
-
 	if !lib_path.is_dir() {
 		info!("Creating library directory at: {}", lib_path.display());
 		if let Err(e) = std::fs::create_dir(&lib_path) {
@@ -35,6 +37,9 @@ fn main() {
 
 	let files = fs::read_dir(&lib_path).unwrap();
 	for file in files {
-		println!("Name: {}", file.unwrap().file_name().to_str().unwrap());
+		info!(
+			"Book: {:?}",
+			Book::from_path(file.unwrap().path().as_path())
+		);
 	}
 }
