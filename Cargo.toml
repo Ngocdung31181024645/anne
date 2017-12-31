@@ -1,14 +1,14 @@
 [package]
-name = "alexandria"
+name = "shelf"
 version = "0.1.0"
 authors = ["zovt <zovt@posteo.de>"]
 description = "A simple program to manage eBook files"
 license-file = "LICENSE"
-homepage = "https://github.com/zovt/alexandria"
-repository = "https://github.com/zovt/alexandria"
+homepage = "https://github.com/zovt/shelf"
+repository = "https://github.com/zovt/shelf"
 
 [[bin]]
-name = "dria"
+name = "shelf"
 path = "src/main.rs"
 
 [dependencies]

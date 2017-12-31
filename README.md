@@ -1,2 +1,2 @@
-# alexandria
+# shelf
 Simple eBook management software
