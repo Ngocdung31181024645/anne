@@ -56,6 +56,7 @@ fn epub_read_metadata(path: &Path) -> Result<Metadata, ReadError> {
 	let mut rdr = Reader::from_reader(buf_rdr);
 
 	let mut ev_buf = Vec::new();
+	// @SPAGHETTI: This could become messy quickly
 	let mut is_title = false;
 	let mut found_title = false;
 	let mut title = None;

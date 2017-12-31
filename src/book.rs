@@ -13,6 +13,7 @@ pub struct Book<'a> {
 
 #[derive(Debug, Clone)]
 pub struct Metadata {
+	// @CONSIDER: Would this be better as a Cow?
 	pub title: String,
 }
 
