@@ -1,6 +1,8 @@
 extern crate env_logger;
 #[macro_use]
 extern crate log;
+extern crate zip;
+extern crate quick_xml;
 
 mod library;
 mod filetypes;
@@ -10,7 +12,6 @@ mod book;
 use book::Book;
 use std::env;
 use std::fs;
-use std::path::Path;
 use std::process;
 
 fn main() {
