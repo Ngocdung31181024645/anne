@@ -1,10 +1,10 @@
 use book::{Metadata, ReadError};
-use quick_xml::events::Event;
-use quick_xml::reader::Reader;
 use std::fs::File;
-use std::io::{BufReader, Error as IOError, Read};
-use std::path::Path;
+use std::io::{BufReader, Read};
+use std::path::{Path, PathBuf};
 use zip::read::ZipArchive;
+use quick_xml::reader::Reader;
+use quick_xml::events::Event;
 
 #[derive(Debug, Copy, Clone)]
 pub enum Filetype {
@@ -45,51 +45,118 @@ impl Filetype {
 	}
 }
 
+#[derive(Debug, Clone, Default)]
+struct EpubMetadata {
+	pub title: String,
+	pub language: String,
+	pub identifier: String,
+	pub creator: Option<String>,
+	pub contributor: Option<String>,
+	pub publisher: Option<String>,
+	pub subject: Option<String>,
+	pub description: Option<String>,
+	pub date: Option<String>,
+	pub type_tag: Option<String>,
+	pub format: Option<String>,
+	pub source: Option<String>,
+	pub relation: Option<String>,
+	pub coverage: Option<String>,
+	pub rights: Option<String>,
+}
+
+impl Into<Metadata> for EpubMetadata {
+	fn into(self) -> Metadata {
+		let EpubMetadata { title, language, identifier, creator, contributor, publisher, subject, description, date, type_tag, format, source, relation, coverage, rights } = self;
+		
+		Metadata {
+			title, language, identifier, creator, contributor, publisher, subject, description, date, type_tag, format, source, relation, coverage, rights
+		}
+	}
+}
+
+enum EpubXmlState {
+	Title,
+	Language,
+	Identifier,
+	Creator,
+	Contributor,
+	Publisher,
+	Subject,
+	Description,
+	Date,
+	TypeTag,
+	Format,
+	Source,
+	Relation,
+	Coverage,
+	Rights,
+}
+
 fn epub_read_metadata(path: &Path) -> Result<Metadata, ReadError> {
-	let mut file = File::open(path)?;
+	let file = File::open(path)?;
 	let mut zip = ZipArchive::new(file)?;
-	let mut md_f = zip.by_name("content.opf")?;
-	let mut buf = Vec::new();
-	md_f.read_to_end(&mut buf)?;
+	let mut zip_data = Vec::new();
+	for i in 0..zip.len() {
+		let mut file = zip.by_index(i)?;
+		match PathBuf::from(file.name()).extension() {
+			Some(s) => match &*s.to_string_lossy() {
+				"opf" => { file.read_to_end(&mut zip_data)?; break },
+				_     => 0,
+			},
+			_     => 0,
+		};
+	}
+		
+	let buf_rdr = BufReader::new(&zip_data[..]);
+	let mut xml_rdr = Reader::from_reader(buf_rdr);
 
-	let buf_rdr = BufReader::new(&buf[..]);
-	let mut rdr = Reader::from_reader(buf_rdr);
-
-	let mut ev_buf = Vec::new();
-	// @SPAGHETTI: This could become messy quickly
-	let mut is_title = false;
-	let mut found_title = false;
-	let mut title = None;
+	let mut epub_meta = EpubMetadata::default();
+	let mut xml_st = None;
+	let mut xml_buf = Vec::new();
 	loop {
-		match rdr.read_event(&mut ev_buf)? {
-			Event::Start(ref e) => {
-				match e.name() {
-					b"dc:title" => {
-						is_title = true;
-						found_title = true;
-					}
-					_ => (),
-				}
-			}
-			Event::End(ref e) => {
-				match e.name() {
-					b"dc:title" => is_title = false,
-					_ => (),
-				}
-			}
-			Event::Text(ref t) => {
-				if is_title {
-					title = Some(String::from_utf8_lossy(t).into_owned());
-				};
-			}
-			Event::Eof => break,
-			_ => (),
+		match xml_rdr.read_event(&mut xml_buf) {
+			Ok(Event::Start(ref e)) => match e.name() {
+				b"dc:title"       => xml_st = Some(EpubXmlState::Title),
+				b"dc:language"    => xml_st = Some(EpubXmlState::Language),
+				b"dc:identifier"  => xml_st = Some(EpubXmlState::Identifier),
+				b"dc:creator"     => xml_st = Some(EpubXmlState::Creator),
+				b"dc:contributor" => xml_st = Some(EpubXmlState::Contributor),
+				b"dc:publisher"   => xml_st = Some(EpubXmlState::Publisher),
+				b"dc:subject"     => xml_st = Some(EpubXmlState::Subject),
+				b"dc:description" => xml_st = Some(EpubXmlState::Description),
+				b"dc:date"        => xml_st = Some(EpubXmlState::Date),
+				b"dc:type_tag"    => xml_st = Some(EpubXmlState::TypeTag),
+				b"dc:format"      => xml_st = Some(EpubXmlState::Format),
+				b"dc:source"      => xml_st = Some(EpubXmlState::Source),
+				b"dc:relation"    => xml_st = Some(EpubXmlState::Relation),
+				b"dc:coverage"    => xml_st = Some(EpubXmlState::Coverage),
+				b"dc:rights"      => xml_st = Some(EpubXmlState::Rights),
+				_                 => (),
+			},
+			Ok(Event::End(_)) => xml_st = None,
+			Ok(Event::Text(ref t)) => match xml_st {
+				None => (),
+				Some(EpubXmlState::Title)       => epub_meta.title = String::from_utf8_lossy(t).into_owned(),
+				Some(EpubXmlState::Language)    => epub_meta.language = String::from_utf8_lossy(t).into_owned(),
+				Some(EpubXmlState::Identifier)  => epub_meta.identifier = String::from_utf8_lossy(t).into_owned(),
+				Some(EpubXmlState::Creator)     => epub_meta.creator = Some(String::from_utf8_lossy(t).into_owned()),
+				Some(EpubXmlState::Contributor) => epub_meta.contributor = Some(String::from_utf8_lossy(t).into_owned()),
+				Some(EpubXmlState::Publisher)   => epub_meta.publisher = Some(String::from_utf8_lossy(t).into_owned()),
+				Some(EpubXmlState::Subject)     => epub_meta.subject = Some(String::from_utf8_lossy(t).into_owned()),
+				Some(EpubXmlState::Description) => epub_meta.description = Some(String::from_utf8_lossy(t).into_owned()),
+				Some(EpubXmlState::Date)        => epub_meta.date = Some(String::from_utf8_lossy(t).into_owned()),
+				Some(EpubXmlState::TypeTag)    => epub_meta.type_tag = Some(String::from_utf8_lossy(t).into_owned()),
+				Some(EpubXmlState::Format)      => epub_meta.format = Some(String::from_utf8_lossy(t).into_owned()),
+				Some(EpubXmlState::Source)      => epub_meta.source = Some(String::from_utf8_lossy(t).into_owned()),
+				Some(EpubXmlState::Relation)    => epub_meta.relation = Some(String::from_utf8_lossy(t).into_owned()),
+				Some(EpubXmlState::Coverage)    => epub_meta.coverage = Some(String::from_utf8_lossy(t).into_owned()),
+				Some(EpubXmlState::Rights)      => epub_meta.rights = Some(String::from_utf8_lossy(t).into_owned()),
+			},
+			Ok(Event::Eof) => break,
+			Err(e) => return Err(e.into()),
+			_      => (),
 		}
 	}
 
-	if let Some(title) = title {
-		Ok(Metadata { title })
-	} else {
-		Err(ReadError::MissingMetadata)
-	}
+	Ok(epub_meta.into())
 }

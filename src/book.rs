@@ -1,8 +1,8 @@
 use filetypes::Filetype;
-use quick_xml::errors::Error as XmlError;
 use std::io::Error as IOError;
 use std::path::Path;
 use zip::result::ZipError;
+use quick_xml::errors::Error as XmlError;
 
 #[derive(Debug, Clone)]
 pub struct Book<'a> {
@@ -11,17 +11,32 @@ pub struct Book<'a> {
 	pub meta: Metadata,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Metadata {
-	// @CONSIDER: Would this be better as a Cow?
+	// @CONSIDER: Would these be better as Cows?
+	// @UNIMPLEMENTED: Optional attributes on tags
+	// see: www.hxa.name/articles/content/epub-guide_hxa7241_2007.html
 	pub title: String,
+	pub language: String,
+	pub identifier: String,
+	pub creator: Option<String>,
+	pub contributor: Option<String>,
+	pub publisher: Option<String>,
+	pub subject: Option<String>,
+	pub description: Option<String>,
+	pub date: Option<String>,
+	pub type_tag: Option<String>,
+	pub format: Option<String>,
+	pub source: Option<String>,
+	pub relation: Option<String>,
+	pub coverage: Option<String>,
+	pub rights: Option<String>,
 }
 
 #[derive(Debug)]
 pub enum ReadError {
 	NoExt,
 	UnimplementedFiletype,
-	MissingMetadata,
 	IOError(IOError),
 	ZipError(ZipError),
 	XmlError(XmlError),

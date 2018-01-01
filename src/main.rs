@@ -38,9 +38,13 @@ fn main() {
 
 	let files = fs::read_dir(&lib_path).unwrap();
 	for file in files {
+		let f = file.unwrap();
+		let md = f.metadata().unwrap();
+		if md.is_dir() { continue; };
+
 		info!(
 			"Book: {:?}",
-			Book::from_path(file.unwrap().path().as_path())
+			Book::from_path(f.path().as_path())
 		);
 	}
 }
