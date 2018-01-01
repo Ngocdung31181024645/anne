@@ -1,8 +1,8 @@
 use filetypes::Filetype;
+use quick_xml::errors::Error as XmlError;
 use std::io::Error as IOError;
 use std::path::Path;
 use zip::result::ZipError;
-use quick_xml::errors::Error as XmlError;
 
 #[derive(Debug, Clone)]
 pub struct Book<'a> {
