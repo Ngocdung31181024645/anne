@@ -26,7 +26,7 @@ fn main() {
 	};
 	lib_path.push(".local");
 	lib_path.push("share");
-	lib_path.push("shelf");
+	lib_path.push("anne");
 
 	if !lib_path.is_dir() {
 		info!("Creating library directory at: {}", lib_path.display());
