@@ -1,18 +1,19 @@
+#[macro_use]
+extern crate clap;
 extern crate env_logger;
 #[macro_use]
 extern crate log;
-extern crate zip;
 extern crate quick_xml;
+extern crate zip;
 
 mod library;
 mod filetypes;
 mod book;
+mod commands;
 
-
-use book::Book;
 use std::env;
-use std::fs;
 use std::process;
+use commands::{add, view};
 
 fn main() {
 	env_logger::init().expect("Failed to initialize logging");
@@ -36,15 +37,26 @@ fn main() {
 		};
 	}
 
-	let files = fs::read_dir(&lib_path).unwrap();
-	for file in files {
-		let f = file.unwrap();
-		let md = f.metadata().unwrap();
-		if md.is_dir() { continue; };
+	let app = clap_app!(anne =>
+		(@setting SubcommandRequiredElseHelp)
+		(version: "0.0.1")
+		(author: "zovt <zovt@posteo.de>")
+		(about: "Anne (the Librarian) - a simple, fast ebook collection manager")
+		(@subcommand add =>
+			(about: "Add books to your collection")
+			(@arg allow_unknown: -u --allow-unknown "Allow unknown formats when adding books")
+			(@arg copy: -c --copy "Copy books instead of move them")
+		)
+		(@subcommand view =>
+			(about: "View information about the books in your collection")
+		)
+	);
 
-		info!(
-			"Book: {:?}",
-			Book::from_path(f.path().as_path())
-		);
+	let matches = app.get_matches();
+
+	match matches.subcommand() {
+		("add", Some(m)) => add(m, &lib_path),
+		("view", Some(m)) => view(m, &lib_path),
+		_ => unreachable!(),
 	}
 }

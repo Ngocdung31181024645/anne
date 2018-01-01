@@ -14,6 +14,7 @@ pub struct Book<'a> {
 #[derive(Debug, Clone, Default)]
 pub struct Metadata {
 	// @CONSIDER: Would these be better as Cows?
+	// @CONSIDER: Would these be better as [u8]?
 	// @UNIMPLEMENTED: Optional attributes on tags
 	// see: www.hxa.name/articles/content/epub-guide_hxa7241_2007.html
 	pub title: String,
@@ -32,6 +33,8 @@ pub struct Metadata {
 	pub coverage: Option<String>,
 	pub rights: Option<String>,
 }
+
+struct FmtStr<'a>(&'a str);
 
 #[derive(Debug)]
 pub enum ReadError {
