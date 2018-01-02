@@ -1,4 +1,4 @@
-use book::{Metadata, ReadError, MetadataField};
+use book::{Metadata, MetadataField, ReadError};
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
 use std::fs::File;
@@ -93,9 +93,7 @@ fn epub_read_metadata(path: &Path) -> Result<Metadata, ReadError> {
 			Ok(Event::End(_)) => xml_st = None,
 			Ok(Event::Text(ref t)) => match xml_st {
 				None => (),
-				Some(MetadataField::Title) => {
-					meta.title = String::from_utf8_lossy(t).into_owned()
-				}
+				Some(MetadataField::Title) => meta.title = String::from_utf8_lossy(t).into_owned(),
 				Some(MetadataField::Language) => {
 					meta.language = String::from_utf8_lossy(t).into_owned()
 				}

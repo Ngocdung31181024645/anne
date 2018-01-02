@@ -12,9 +12,9 @@ mod book;
 mod commands;
 mod formatting;
 
+use commands::{add, view};
 use std::env;
 use std::process;
-use commands::{add, view};
 
 fn main() {
 	env_logger::init().expect("Failed to initialize logging");

@@ -78,7 +78,6 @@ impl MetadataField {
 	}
 }
 
-
 #[derive(Debug)]
 pub enum ReadError {
 	NoExt,
@@ -113,7 +112,7 @@ impl<'a> Book<'a> {
 			None => return Err(ReadError::NoExt),
 		};
 
-		// TODO: It is more efficient to read only the metadata fields that we'll 
+		// TODO: It is more efficient to read only the metadata fields that we'll
 		// actually be needing for a given computation
 		let meta = ft.read_metadata(path)?;
 		Ok(Book {

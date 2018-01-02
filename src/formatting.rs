@@ -21,7 +21,9 @@ static FMTERS: [(&'static str, MetadataField); 15] = [
 
 fn find_fmter(s: &str, fmters: &[(&str, MetadataField)]) -> Option<MetadataField> {
 	for &(fmt, f) in fmters {
-		if s == fmt { return Some(f) };
+		if s == fmt {
+			return Some(f);
+		};
 	}
 
 	None
@@ -53,7 +55,12 @@ impl<'a> FmtStr<'a> {
 				debug!("Replace %");
 				let pat = &fmt[last_i..i];
 				let fmter = match find_fmter(pat, &FMTERS) {
-					None => return Err(Error { idx: i, pat: pat.to_string() }),
+					None => {
+						return Err(Error {
+							idx: i,
+							pat: pat.to_string(),
+						})
+					}
 					Some(f) => f,
 				};
 
@@ -69,7 +76,10 @@ impl<'a> FmtStr<'a> {
 		}
 
 		if inside {
-			return Err(Error { idx: last_i, pat: "%".to_string() });
+			return Err(Error {
+				idx: last_i,
+				pat: "%".to_string(),
+			});
 		};
 
 		out.push_str(&fmt[last_i..fmt.len()]);
