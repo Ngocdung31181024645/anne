@@ -34,7 +34,50 @@ pub struct Metadata {
 	pub rights: Option<String>,
 }
 
-struct FmtStr<'a>(&'a str);
+// @NOTE: This must match the fields in Metadata
+// @CONSIDER: There's probably an easier way to do this
+#[derive(Copy, Clone)]
+pub enum MetadataField {
+	Title,
+	Language,
+	Identifier,
+	Creator,
+	Contributor,
+	Publisher,
+	Subject,
+	Description,
+	Date,
+	TypeTag,
+	Format,
+	Source,
+	Relation,
+	Coverage,
+	Rights,
+}
+
+impl MetadataField {
+	pub fn lookup<'a>(self, meta: &'a Metadata) -> Option<&'a str> {
+		match self {
+			MetadataField::Title => Some(meta.title.as_str()),
+			MetadataField::Language => Some(meta.language.as_str()),
+			MetadataField::Identifier => Some(meta.identifier.as_str()),
+			MetadataField::Creator => meta.creator.as_ref().map(|s| s.as_str()),
+			MetadataField::Contributor => meta.contributor.as_ref().map(|s| s.as_str()),
+			MetadataField::Publisher => meta.publisher.as_ref().map(|s| s.as_str()),
+			MetadataField::Subject => meta.subject.as_ref().map(|s| s.as_str()),
+			MetadataField::Description => meta.description.as_ref().map(|s| s.as_str()),
+			MetadataField::Date => meta.date.as_ref().map(|s| s.as_str()),
+			MetadataField::TypeTag => meta.type_tag.as_ref().map(|s| s.as_str()),
+			MetadataField::Format => meta.format.as_ref().map(|s| s.as_str()),
+			MetadataField::Source => meta.source.as_ref().map(|s| s.as_str()),
+			MetadataField::Relation => meta.relation.as_ref().map(|s| s.as_str()),
+			MetadataField::Coverage => meta.coverage.as_ref().map(|s| s.as_str()),
+			MetadataField::Rights => meta.rights.as_ref().map(|s| s.as_str()),
+			_ => panic!(),
+		}
+	}
+}
+
 
 #[derive(Debug)]
 pub enum ReadError {
@@ -70,6 +113,8 @@ impl<'a> Book<'a> {
 			None => return Err(ReadError::NoExt),
 		};
 
+		// TODO: It is more efficient to read only the metadata fields that we'll 
+		// actually be needing for a given computation
 		let meta = ft.read_metadata(path)?;
 		Ok(Book {
 			path: path,

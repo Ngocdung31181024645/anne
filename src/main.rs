@@ -10,6 +10,7 @@ mod library;
 mod filetypes;
 mod book;
 mod commands;
+mod formatting;
 
 use std::env;
 use std::process;
@@ -54,9 +55,12 @@ fn main() {
 
 	let matches = app.get_matches();
 
-	match matches.subcommand() {
+	if let Err(s) = match matches.subcommand() {
 		("add", Some(m)) => add(m, &lib_path),
 		("view", Some(m)) => view(m, &lib_path),
 		_ => unreachable!(),
+	} {
+		println!("{:?}", s);
+		process::exit(1);
 	}
 }
