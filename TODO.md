@@ -19,3 +19,7 @@
   - [ ] cb7
 - [ ] AZW3
 - [ ] PDF
+
+## Code
+- [ ] More informative error handling
+
