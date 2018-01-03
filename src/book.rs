@@ -7,7 +7,6 @@ use zip::result::ZipError;
 #[derive(Debug, Clone)]
 pub struct Book<'a> {
 	pub path: &'a Path,
-	pub ft: Filetype,
 	pub meta: Metadata,
 }
 
@@ -20,6 +19,7 @@ pub struct Metadata {
 	pub title: String,
 	pub language: String,
 	pub identifier: String,
+	pub filetype: Filetype,
 	pub creator: Option<String>,
 	pub contributor: Option<String>,
 	pub publisher: Option<String>,
@@ -111,10 +111,6 @@ impl<'a> Book<'a> {
 		// actually be needing for a given computation
 		let ft = Filetype::from_path(path);
 		let meta = ft.read_metadata(path)?;
-		Ok(Book {
-			path: path,
-			ft,
-			meta,
-		})
+		Ok(Book { path: path, meta })
 	}
 }
