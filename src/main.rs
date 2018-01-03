@@ -1,11 +1,11 @@
 #[macro_use]
 extern crate clap;
-extern crate env_logger;
 #[macro_use]
-extern crate log;
 extern crate quick_xml;
 extern crate zip;
 
+#[macro_use]
+mod term_print;
 mod library;
 mod filetypes;
 mod book;
@@ -17,8 +17,6 @@ use std::env;
 use std::process;
 
 fn main() {
-	env_logger::init().expect("Failed to initialize logging");
-
 	let mut lib_path;
 	if let Some(home_dir) = env::home_dir() {
 		lib_path = home_dir;
