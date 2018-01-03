@@ -47,6 +47,7 @@ fn main() {
 			(about: "Add books to your collection")
 			(@arg allow_unknown: -u --allow-unknown "Allow unknown formats when adding books")
 			(@arg copy: -c --copy "Copy books instead of move them")
+			(@arg FILES: +required +multiple "The book files to add")
 		)
 		(@subcommand view =>
 			(about: "View information about the books in your collection")
