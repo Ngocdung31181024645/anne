@@ -43,8 +43,9 @@ fn main() {
 		(about: "Anne (the Librarian) - a simple, fast ebook collection manager")
 		(@subcommand add =>
 			(about: "Add books to your collection")
-			(@arg allow_unknown: -u --allow-unknown "Allow unknown formats when adding books")
+			(@arg allow_unknown: -u --unknown "Allow unknown formats when adding books")
 			(@arg copy: -c --copy "Copy books instead of move them")
+			(@arg recursive: -r --recursive "Recurse into directories when adding books")
 			(@arg FILES: +required +multiple "The book files to add")
 		)
 		(@subcommand view =>
