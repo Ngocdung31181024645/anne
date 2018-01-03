@@ -23,19 +23,24 @@ pub enum ComicCompression {
 }
 
 impl Filetype {
-	pub fn from_path(path: &Path) -> Option<Self> {
-		path.extension()
+	pub fn from_path(path: &Path) -> Self {
+		let ext = match path.extension()
 			.and_then(|e| e.to_str())
 			.map(|ext| ext.to_lowercase())
-			.and_then(|ext| match ext.as_ref() {
-				"epub" => Some(Filetype::EPub),
-				"djvu" => Some(Filetype::DjVu),
-				"cbz" => Some(Filetype::Comic(ComicCompression::Zip)),
-				"cbr" => Some(Filetype::Comic(ComicCompression::Rar)),
-				"cb7" => Some(Filetype::Comic(ComicCompression::SevenZ)),
-				"cbt" => Some(Filetype::Comic(ComicCompression::Tar)),
-				_ => None,
-			})
+		{
+			None => return Filetype::Unknown,
+			Some(ext) => ext,
+		};
+
+		match ext.as_ref() {
+			"epub" => Filetype::EPub,
+			"djvu" => Filetype::DjVu,
+			"cbz" => Filetype::Comic(ComicCompression::Zip),
+			"cbr" => Filetype::Comic(ComicCompression::Rar),
+			"cb7" => Filetype::Comic(ComicCompression::SevenZ),
+			"cbt" => Filetype::Comic(ComicCompression::Tar),
+			_ => Filetype::Unknown,
+		}
 	}
 
 	pub fn read_metadata(self, path: &Path) -> Result<Metadata, ReadError> {

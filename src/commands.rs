@@ -44,7 +44,7 @@ pub fn add(args: &ArgMatches, lib: &Path) -> Result<(), Error> {
 	for p in paths {
 		// @TODO: Optionally go through directories
 		match Filetype::from_path(p) {
-			Some(Filetype::Unknown) => if !args.is_present("allow_unknown") {
+			Filetype::Unknown => if !args.is_present("allow_unknown") {
 				warn!(
 					"Unknown filetype: {}",
 					p.file_name().unwrap().to_string_lossy()

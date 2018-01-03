@@ -107,13 +107,9 @@ impl From<XmlError> for ReadError {
 
 impl<'a> Book<'a> {
 	pub fn from_path(path: &'a Path) -> Result<Self, ReadError> {
-		let ft = match Filetype::from_path(path) {
-			Some(ft) => ft,
-			None => return Err(ReadError::NoExt),
-		};
-
 		// TODO: It is more efficient to read only the metadata fields that we'll
 		// actually be needing for a given computation
+		let ft = Filetype::from_path(path);
 		let meta = ft.read_metadata(path)?;
 		Ok(Book {
 			path: path,
