@@ -37,14 +37,18 @@ pub fn add(args: &ArgMatches, lib: &Path) -> Result<(), Error> {
 	let paths = match args.values_of("FILES") {
 		None => return Err(Error::InvalidArgument),
 		Some(f) => f,
-	}.map(Path::new).collect::<Vec<&Path>>();
+	}.map(Path::new)
+		.collect::<Vec<&Path>>();
 	let mut dest = lib.to_owned();
 
 	for p in paths {
 		// @TODO: Optionally go through directories
 		match Filetype::from_path(p) {
-			Some(Filetype::Unknown) => if !args.is_present("allow_unknown") { 
-				warn!("Unknown filetype: {}", p.file_name().unwrap().to_string_lossy());
+			Some(Filetype::Unknown) => if !args.is_present("allow_unknown") {
+				warn!(
+					"Unknown filetype: {}",
+					p.file_name().unwrap().to_string_lossy()
+				);
 				continue;
 			},
 			_ => (),
